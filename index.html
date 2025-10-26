@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ===== Basic Meta ===== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Use our free Smart APR Calculator to quickly find your loan or mortgage APR. Simple, accurate, and mobile-friendly tool.">
+  <meta name="keywords" content="APR calculator, mortgage APR calculator, loan interest rate calculator, APR tool online">
+  <title>Smart APR Calculator</title>
+
+  <!-- ===== Google Fonts ===== -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- ===== Chart.js ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- ===== CSS Styles ===== -->
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #111;
+      color: #f5f5f5;
+      line-height: 1.6;
+    }
+    header {
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+    }
+    header h1 { font-size: 2rem; margin: 0; color: #00d8ff; }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .ad-block {
+      background: #1a1a1a;
+      border: 1px dashed #333;
+      text-align: center;
+      padding: 1rem;
+      margin: 1rem 0;
+      color: #888;
+    }
+
+    /* ===== Tabs ===== */
+    .tabs { display: flex; justify-content: center; margin-bottom: 1rem; }
+    .tab {
+      background: #222;
+      color: #aaa;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      margin: 0 0.25rem;
+      transition: all 0.3s ease;
+    }
+    .tab.active {
+      background: #00d8ff;
+      color: #111;
+      font-weight: 600;
+    }
+
+    /* ===== Calculator Box ===== */
+    .calculator {
+      background: #1b1b1b;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.3);
+    }
+    label { display: block; margin-top: 0.75rem; font-weight: 500; }
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.3rem;
+      border-radius: 6px;
+      border: none;
+      background: #222;
+      color: #fff;
+    }
+    button {
+      margin-top: 1rem;
+      background: #00d8ff;
+      border: none;
+      color: #111;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    button:hover { background: #02bde2; }
+
+    /* ===== Results ===== */
+    .results {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+      background: #151515;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+    .results-text { flex: 1 1 60%; }
+    .chart-container {
+      flex: 1 1 35%;
+      max-width: 250px;
+      margin: auto;
+    }
+    canvas { width: 100% !important; height: auto !important; }
+
+    /* ===== Info Sections ===== */
+    section {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: #1b1b1b;
+      border-radius: 10px;
+    }
+    section h2 {
+      color: #00d8ff;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ===== Footer ===== */
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: #0d0d0d;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    /* ===== Sticky Bottom Ad (Mobile) ===== */
+    .sticky-ad {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #111;
+      text-align: center;
+      padding: 0.75rem;
+      border-top: 1px solid #333;
+      color: #aaa;
+    }
+    @media (max-width: 768px) {
+      .sticky-ad { display: block; }
+      .results { flex-direction: column; text-align: center; }
+      .results-text, .chart-container { flex: 1 1 100%; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ===== HEADER ===== -->
+  <header>
+    <h1>Smart APR Calculator</h1>
+  </header>
+
+  <!-- ===== TOP AdSense Placeholder ===== -->
+  <div class="ad-block">[Top AdSense Banner Placeholder]</div>
+
+  <div class="container">
+    <!-- ===== Tabs ===== -->
+    <div class="tabs">
+      <div class="tab active" id="general-tab">General APR Calculator</div>
+      <div class="tab" id="mortgage-tab">Mortgage APR Calculator</div>
+    </div>
+
+    <!-- ===== Calculator Sections ===== -->
+    <div id="general-calculator" class="calculator">
+      <label>Loan Amount ($)</label>
+      <input type="number" id="loanAmount" placeholder="e.g., 10000">
+
+      <label>Interest Rate (%)</label>
+      <input type="number" id="interestRate" placeholder="e.g., 5">
+
+      <label>Loan Term (Years)</label>
+      <input type="number" id="loanTerm" placeholder="e.g., 3">
+
+      <button onclick="calculateAPR()">Calculate APR</button>
+
+      <div class="results" id="resultBox">
+        <div class="results-text">
+          <h3>Your Results</h3>
+          <p id="aprResult">Enter your details above to see the APR.</p>
+        </div>
+        <div class="chart-container">
+          <canvas id="aprChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MID AdSense Placeholder ===== -->
+    <div class="ad-block">[Mid AdSense Banner Placeholder]</div>
+
+    <div id="mortgage-calculator" class="calculator" style="display:none;">
+      <label>Mortgage Amount ($)</label>
+      <input type="number" id="mortgageAmount" placeholder="e.g., 250000">
+
+      <label>Interest Rate (%)</label>
+      <input type="number" id="mortgageRate" placeholder="e.g., 4">
+
+      <label>Loan Term (Years)</label>
+      <input type="number" id="mortgageTerm" placeholder="e.g., 30">
+
+      <label>Fees & Closing Costs ($)</label>
+      <input type="number" id="mortgageFees" placeholder="e.g., 3000">
+
+      <button onclick="calculateMortgageAPR()">Calculate Mortgage APR</button>
+
+      <div class="results" id="mortgageResultBox">
+        <div class="results-text">
+          <h3>Mortgage Results</h3>
+          <p id="mortgageAPRResult">Enter mortgage details to calculate APR.</p>
+        </div>
+        <div class="chart-container">
+          <canvas id="mortgageChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== AFTER RESULTS AdSense Placeholder ===== -->
+    <div class="ad-block">[After Results AdSense Placeholder]</div>
+
+    <!-- ===== Informational Sections ===== -->
+    <section>
+      <h2>About This Calculator</h2>
+      <p>This friendly tool helps you quickly estimate your APR for personal or mortgage loans. It’s built to be simple and accurate — perfect whether you’re comparing offers or just curious about your rates.</p>
+    </section>
+
+    <section>
+      <h2>How It Works</h2>
+      <p>APR (Annual Percentage Rate) represents the yearly cost of borrowing, including interest and fees. Just enter your loan amount, rate, and term — our smart formula calculates your real APR instantly!</p>
+    </section>
+
+    <section>
+      <h2>Why Use This Tool</h2>
+      <ul>
+        <li>✔ No sign-up required</li>
+        <li>✔ Works instantly on any device</li>
+        <li>✔ Accurate results with easy visuals</li>
+        <li>✔ 100% free and ad-supported</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>FAQs</h2>
+      <p><strong>Q:</strong> What’s the difference between APR and interest rate?<br>
+      <strong>A:</strong> The APR includes both interest and fees — it gives a complete picture of your total loan cost.</p>
+
+      <p><strong>Q:</strong> Can I use this for car loans?<br>
+      <strong>A:</strong> Yes! You can use the General APR Calculator for any type of loan.</p>
+
+      <p><strong>Q:</strong> Is this calculator accurate?<br>
+      <strong>A:</strong> It’s designed using standard financial formulas, so your results are close to real lender estimates.</p>
+
+      <p><strong>Q:</strong> Does it store my data?<br>
+      <strong>A:</strong> Nope — all calculations happen locally in your browser for privacy.</p>
+    </section>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    © 2025 Smart APR Calculator | All Rights Reserved
+  </footer>
+
+  <!-- ===== Sticky Bottom Mobile Ad ===== -->
+  <div class="sticky-ad">[Sticky Bottom AdSense Placeholder]</div>
+
+  <!-- ===== JavaScript ===== -->
+  <script>
+    // ===== Tabs Switching =====
+    const generalTab = document.getElementById('general-tab');
+    const mortgageTab = document.getElementById('mortgage-tab');
+    const generalCalc = document.getElementById('general-calculator');
+    const mortgageCalc = document.getElementById('mortgage-calculator');
+
+    generalTab.addEventListener('click', () => {
+      generalCalc.style.display = 'block';
+      mortgageCalc.style.display = 'none';
+      generalTab.classList.add('active');
+      mortgageTab.classList.remove('active');
+    });
+
+    mortgageTab.addEventListener('click', () => {
+      generalCalc.style.display = 'none';
+      mortgageCalc.style.display = 'block';
+      mortgageTab.classList.add('active');
+      generalTab.classList.remove('active');
+    });
+
+    // ===== Chart.js Donut Charts =====
+    let aprChartInstance = null;
+    let mortgageChartInstance = null;
+
+    function calculateAPR() {
+      const amount = parseFloat(document.getElementById('loanAmount').value);
+      const rate = parseFloat(document.getElementById('interestRate').value);
+      const years = parseFloat(document.getElementById('loanTerm').value);
+
+      if (!amount || !rate || !years) {
+        document.getElementById('aprResult').textContent = "Please fill in all fields.";
+        return;
+      }
+
+      const interest = (amount * rate * years) / 100;
+      const apr = (interest / amount / years) * 100;
+
+      document.getElementById('aprResult').textContent = `Your Estimated APR: ${apr.toFixed(2)}%`;
+
+      const ctx = document.getElementById('aprChart');
+      if (aprChartInstance) aprChartInstance.destroy();
+      aprChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Interest', 'Principal'],
+          datasets: [{
+            data: [interest, amount],
+            backgroundColor: ['#00d8ff', '#333'],
+          }]
+        },
+        options: { plugins: { legend: { labels: { color: '#fff' } } } }
+      });
+    }
+
+    function calculateMortgageAPR() {
+      const amount = parseFloat(document.getElementById('mortgageAmount').value);
+      const rate = parseFloat(document.getElementById('mortgageRate').value);
+      const years = parseFloat(document.getElementById('mortgageTerm').value);
+      const fees = parseFloat(document.getElementById('mortgageFees').value);
+
+      if (!amount || !rate || !years) {
+        document.getElementById('mortgageAPRResult').textContent = "Please fill in all fields.";
+        return;
+      }
+
+      const totalInterest = (amount * rate * years) / 100;
+      const totalCost = amount + totalInterest + (fees || 0);
+      const apr = ((totalCost - amount) / amount / years) * 100;
+
+      document.getElementById('mortgageAPRResult').textContent = `Your Estimated Mortgage APR: ${apr.toFixed(2)}%`;
+
+      const ctx = document.getElementById('mortgageChart');
+      if (mortgageChartInstance) mortgageChartInstance.destroy();
+      mortgageChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Interest + Fees', 'Principal'],
+          datasets: [{
+            data: [totalInterest + (fees || 0), amount],
+            backgroundColor: ['#00d8ff', '#333'],
+          }]
+        },
+        options: { plugins: { legend: { labels: { color: '#fff' } } } }
+      });
+    }
+  </script>
+</body>
+</html>
